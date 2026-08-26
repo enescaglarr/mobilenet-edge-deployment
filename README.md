@@ -83,5 +83,8 @@ edit the paths at the top of each `.py`.
 
 ## Authors
 
-Enes Çağlar — MobileNet track (this repo). The parallel EfficientNet track was carried out by
-a teammate and is not included here.
+- **Enes Çağlar** — MobileNet track (this repository)
+- **Ada Boran Yılmaz** — parallel EfficientNet track (not included here)
+- Supervisor: **Ömer Ceylan**, Sabancı University
+
+The reports and presentations in `docs/` are the joint group deliverables and cover both tracks.
