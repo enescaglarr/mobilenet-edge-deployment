@@ -1,0 +1,26 @@
+# --- data & models (regenerable / too large for GitHub) ---
+dataset/
+custom-kernels/dataset_subset/
+custom-kernels/dataset_subset.zip
+models/*.onnx
+*.engine
+*.pth
+*.h5
+trt_cache/
+
+# --- lecture-note PDFs (not project output; GPU.pdf alone is 149 MB) ---
+docs/lecture-notes/
+docs/misc/
+
+# --- build / runtime junk ---
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+torch_extensions/
+*.so
+*.o
+.DS_Store
+.venv/
+venv/
+*.zip
+results/**/*.nsys-rep
