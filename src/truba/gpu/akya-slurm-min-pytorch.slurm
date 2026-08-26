@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p akya-cuda
-#SBATCH -A oceylan
+#SBATCH -A <truba-account>
 #SBATCH -J akya_min_pytorch
 #SBATCH -o akya_min_pytorch.out
 #SBATCH --gres=gpu:1
@@ -16,7 +16,7 @@ module load apps/truba-ai/gpu-2024.0   # TensorFlow ve PyTorch için hazır orta
 echo "✅ Loaded TRUBA AI GPU environment"
 
 # === Çalıştırma Dizini ===
-cd /arf/scratch/oceylan/mobileNetGPU
+cd /arf/scratch/<truba-user>/mobileNetGPU
 
 # === TensorFlow Mobilenet Test ===
 python mobilenet_gpu_pytorch.py

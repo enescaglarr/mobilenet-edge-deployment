@@ -20,7 +20,7 @@ repo's scripts; raw logs and CSVs are in [`results/`](results/).
 | Custom pointwise 1×1 kernel vs `F.conv2d` FP16 (layer-level) | Colab A100 | **2.1× / 2.1× / 2.6×** on the same shapes; drops to **0.7×** at C=128 (naive kernel loses to cuDNN) |
 | PyTorch MobileNetV2, 50k ImageNet-val | TRUBA V100 | plateaus at ~840–900 img/s from batch 32; Top-1/Top-5 69.25 / 88.81 |
 | TF-Keras MobileNetV1, 50k ImageNet-val | TRUBA V100 | 218 img/s (batch 16) → 2,234 img/s (batch 4096); Top-1/Top-5 69.06 / 88.52; same curve with 1, 2 or 4 GPUs requested |
-| CPU thread scaling, MobileNetV1/V2/V3 | laptop | V1 +87% from 1→3 threads, saturates at 4; V3 only +50–60% |
+| CPU thread scaling, MobileNetV1/V2/V3 | CPU (local) | V1 +87% from 1→3 threads, saturates at 4; V3 only +50–60% |
 
 Two things the numbers do **not** say, stated explicitly:
 

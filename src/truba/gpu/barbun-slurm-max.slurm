@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p barbun-cuda
-#SBATCH -A oceylan
+#SBATCH -A <truba-account>
 #SBATCH -J barbun_max
 #SBATCH -o barbun_max.out
 #SBATCH --gres=gpu:2             # Her 20 CPU için 1 GPU → 40 CPU = 2 GPU
@@ -27,4 +27,4 @@ print("Available GPUs:", tf.config.list_physical_devices('GPU'))
 EOF
 
 # === Asıl MobileNet GPU testi ===
-python /arf/scratch/oceylan/mobileNetGPU/mobilenet_gpu_test.py
+python /arf/scratch/<truba-user>/mobileNetGPU/mobilenet_gpu_test.py

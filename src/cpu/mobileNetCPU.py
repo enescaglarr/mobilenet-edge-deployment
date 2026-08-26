@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 
 # === 1. Path to your dataset ===
-dataset_dir = "/Users/enescaglar/Downloads/dataset"  # ← change this to your actual folder
+dataset_dir = "./dataset"  # ← change this to your actual folder
 
 # === 2. Load dataset using tf.data ===
 IMG_SIZE = 224

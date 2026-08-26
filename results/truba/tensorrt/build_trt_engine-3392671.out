@@ -5,6 +5,6 @@ Start time  : Tue Dec 16 05:34:30 AM +03 2025
 [12/16/2025-05:34:55] [TRT] [E] createInferBuilder: Error Code 6: API Usage Error (CUDA initialization failure with error: 35. Please check your CUDA installation: http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html In operator() at /_src/optimizer/api/builder.cpp:1360)
 [12/16/2025-05:34:55] [TRT] [E] [checkMacros.cpp::catchCudaError::229] Error Code 1: Cuda Runtime (In catchCudaError at /_src/common/dispatch/checkMacros.cpp:229)
 Traceback (most recent call last):
-  File "/arf/scratch/oceylan/mobileNetCudaV2/build_engine.py", line 7, in <module>
+  File "/arf/scratch/<truba-user>/mobileNetCudaV2/build_engine.py", line 7, in <module>
     builder = trt.Builder(logger)
 TypeError: pybind11::init(): factory function returned nullptr

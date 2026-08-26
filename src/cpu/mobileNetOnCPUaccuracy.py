@@ -102,7 +102,7 @@ def train_one_epoch(model, data_loader, optimizer, criterion, device):
     return running_loss / len(data_loader)
 
 def main():
-    data_root = '/Users/enescaglar/Documents/Lecture Notes/ENS491/tiny-imagenet-200'
+    data_root = '<path-to-tiny-imagenet-200>'
     device = torch.device('cpu')
 
     print(f"Device in use: {device}")

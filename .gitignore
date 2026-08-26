@@ -24,3 +24,6 @@ torch_extensions/
 venv/
 *.zip
 results/**/*.nsys-rep
+
+# contains a third party's HPC username and internal login IP
+docs/weekly-slides/S2-TRUBAserver.pdf

@@ -1,5 +1,5 @@
 import os
-os.environ["KERAS_HOME"] = "/arf/scratch/oceylan/.keras"
+os.environ["KERAS_HOME"] = "/arf/scratch/<truba-user>/.keras"
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 
 import time
@@ -12,7 +12,7 @@ import onnx
 import onnxruntime as ort
 
 # === 1) Paths & constants ===
-dataset_dir = "/arf/scratch/oceylan/mobileNetGPU/dataset"
+dataset_dir = "/arf/scratch/<truba-user>/mobileNetGPU/dataset"
 IMG_SIZE = 224
 BATCH_SIZES = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
 onnx_path = "mobilenet_v1.onnx"

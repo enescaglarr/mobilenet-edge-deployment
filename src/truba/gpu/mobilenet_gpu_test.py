@@ -1,5 +1,5 @@
 import os
-os.environ["KERAS_HOME"] = "/arf/scratch/oceylan/.keras"
+os.environ["KERAS_HOME"] = "/arf/scratch/<truba-user>/.keras"
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 import tensorflow as tf
 from tensorflow.keras.applications import MobileNet
@@ -11,7 +11,7 @@ import pandas as pd
 
 
 # === 1. Dataset path ===
-dataset_dir = "/arf/scratch/oceylan/mobileNetGPU/dataset"  # <-- buraya dataset dizininin yolunu yaz
+dataset_dir = "/arf/scratch/<truba-user>/mobileNetGPU/dataset"  # <-- buraya dataset dizininin yolunu yaz
 IMG_SIZE = 224
 BATCH_SIZES = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
 

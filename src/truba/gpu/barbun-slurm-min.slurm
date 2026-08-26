@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p barbun-cuda
-#SBATCH -A oceylan
+#SBATCH -A <truba-account>
 #SBATCH -J barbun_min
 #SBATCH -o barbun_min.out
 #SBATCH --gres=gpu:1
@@ -27,4 +27,4 @@ print("Available GPUs:", tf.config.list_physical_devices('GPU'))
 EOF
 
 # === Ana script ===
-python /arf/scratch/oceylan/mobileNetGPU/mobilenet_gpu_test.py
+python /arf/scratch/<truba-user>/mobileNetGPU/mobilenet_gpu_test.py

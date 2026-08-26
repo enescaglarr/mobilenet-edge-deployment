@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -A oceylan
+#SBATCH -A <truba-account>
 #SBATCH -p akya-cuda
 #SBATCH -J mobilenet_gpu
 #SBATCH -o mobilenet_gpu.out
@@ -29,6 +29,6 @@ print("Available GPUs:", tf.config.list_physical_devices('GPU'))
 EOF
 
 # === Mobilenet testini çalıştır ===
-python /arf/scratch/oceylan/mobileNetGPU/mobilenet_gpu_test.py
+python /arf/scratch/<truba-user>/mobileNetGPU/mobilenet_gpu_test.py
 
 exit

@@ -16,8 +16,8 @@ def main():
     print(f"🟢 Using device: {device}")
 
     # ====== PATH SETTINGS ======
-    train_dir = "/Users/enescaglar/Documents/Lecture Notes/ENS491/tiny-imagenet-200/train"
-    val_dir   = "/Users/enescaglar/Documents/Lecture Notes/ENS491/tiny-imagenet-200/val"
+    train_dir = "<path-to-tiny-imagenet-200>/train"
+    val_dir   = "<path-to-tiny-imagenet-200>/val"
 
     # ====== HYPERPARAMETERS ======
     num_classes = 200

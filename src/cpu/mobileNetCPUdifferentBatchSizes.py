@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 # === 1. Dataset path ===
-dataset_dir = "/Users/enescaglar/Downloads/dataset"  # ← change to your actual folder
+dataset_dir = "./dataset"  # ← change to your actual folder
 IMG_SIZE = 224
 BATCH_SIZES = [16, 32, 64, 128, 256, 512]
 

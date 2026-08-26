@@ -10,7 +10,7 @@ from tqdm import tqdm
 import os
 
 # === 1. Paths & Settings ===
-dataset_dir = "/arf/scratch/oceylan/mobileNetGPU/dataset"
+dataset_dir = "/arf/scratch/<truba-user>/mobileNetGPU/dataset"
 BATCH_SIZES = [16, 32, 64, 128, 256, 512, 1024]   # keep ≤1024 to avoid OOM
 IMG_SIZE = 224
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
