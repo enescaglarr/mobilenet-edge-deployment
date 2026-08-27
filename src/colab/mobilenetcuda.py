@@ -801,91 +801,25 @@ from torch.utils.cpp_extension import load
 # 🔑 BU SATIR EKSİKTİ
 os.makedirs("/content/torch_extensions/dwext", exist_ok=True)
 
-src_cuda = r"""
-#include <torch/extension.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <cuda_fp16.h>
-
-__global__ void dwconv3x3_fp16_kernel(
-    const half* __restrict__ x,
-    const half* __restrict__ w,
-    half* __restrict__ y,
-    int N, int C, int H, int W
-){
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    int total = N * C * H * W;
-    if (tid >= total) return;
-
-    int t = tid;
-    int w0 = t % W; t /= W;
-    int h0 = t % H; t /= H;
-    int c  = t % C; t /= C;
-    int n  = t;
-
-    const half* wc = w + c * 9;
-
-    float acc = 0.0f;
-    #pragma unroll
-    for (int kh = -1; kh <= 1; kh++) {
-        #pragma unroll
-        for (int kw = -1; kw <= 1; kw++) {
-            int h = h0 + kh;
-            int ww = w0 + kw;
-            if ((unsigned)h < (unsigned)H && (unsigned)ww < (unsigned)W) {
-                float xv = __half2float(x[((n*C + c)*H + h)*W + ww]);
-                float wv = __half2float(wc[(kh+1)*3 + (kw+1)]);
-                acc += xv * wv;
-            }
-        }
-    }
-    y[((n*C + c)*H + h0)*W + w0] = __float2half(acc);
-}
-
-torch::Tensor dwconv3x3_fp16(torch::Tensor x, torch::Tensor w) {
-    TORCH_CHECK(x.is_cuda(), "x must be CUDA");
-    TORCH_CHECK(w.is_cuda(), "w must be CUDA");
-    TORCH_CHECK(x.scalar_type() == at::kHalf, "x must be FP16");
-    TORCH_CHECK(w.scalar_type() == at::kHalf, "w must be FP16");
-
-    int N = x.size(0);
-    int C = x.size(1);
-    int H = x.size(2);
-    int W = x.size(3);
-
-    auto y = torch::empty_like(x);
-
-    int total = N*C*H*W;
-    int threads = 256;
-    int blocks = (total + threads - 1) / threads;
-
-    dwconv3x3_fp16_kernel<<<blocks, threads>>>(
-        (half*)x.data_ptr<at::Half>(),
-        (half*)w.data_ptr<at::Half>(),
-        (half*)y.data_ptr<at::Half>(),
-        N, C, H, W
-    );
-
-    return y;
-}
-"""
-
-src_cpp = r"""
-#include <torch/extension.h>
-torch::Tensor dwconv3x3_fp16(torch::Tensor x, torch::Tensor w);
-
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-    m.def("dwconv3x3_fp16", &dwconv3x3_fp16, "Depthwise 3x3 FP16 (CUDA)");
-}
-"""
-
-os.makedirs("dwext", exist_ok=True)
-with open("dwext/dwconv.cu", "w") as f: f.write(src_cuda)
-with open("dwext/bind.cpp", "w") as f: f.write(src_cpp)
+# Kernel sources live in custom-kernels/kernels/ (extracted from this notebook's
+# original inline strings, byte-for-byte). Set MNV2_KERNELS_DIR if running from
+# somewhere other than the repo checkout (e.g. after uploading the folder to Colab).
+def _kernels_dir():
+    cands = [os.environ.get("MNV2_KERNELS_DIR", ""),
+             os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "custom-kernels", "kernels") if "__file__" in globals() else "",
+             os.path.join(os.getcwd(), "custom-kernels", "kernels"),
+             os.path.join(os.getcwd(), "kernels"),
+             os.getcwd()]
+    for d in cands:
+        if d and os.path.isfile(os.path.join(d, "dwconv3x3_fp16.cu")):
+            return os.path.abspath(d)
+    raise FileNotFoundError("dwconv3x3_fp16.cu not found; set MNV2_KERNELS_DIR to custom-kernels/kernels")
+KERNELS_DIR = _kernels_dir()
 
 dwext = load(
     name="dwext",
-    sources=["dwext/bind.cpp", "dwext/dwconv.cu"],
+    sources=[os.path.join(KERNELS_DIR, "dwconv3x3_fp16_bind.cpp"),
+             os.path.join(KERNELS_DIR, "dwconv3x3_fp16.cu")],
     build_directory="/content/dwext",
     extra_cflags=["-O3"],
     extra_cuda_cflags=["--use_fast_math", "-lineinfo"],
@@ -1009,102 +943,16 @@ from torch.utils.cpp_extension import load
 
 # Build directory
 os.makedirs("/content/torch_extensions/pwext", exist_ok=True)
-os.makedirs("pwext", exist_ok=True)
 
-# ============================
-# CUDA source
-# ============================
-src_cuda = r"""
-#include <torch/extension.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <cuda_fp16.h>
-
-__global__ void pwconv1x1_fp16_kernel(
-    const half* __restrict__ x,
-    const half* __restrict__ w,
-    half* __restrict__ y,
-    int N, int Cin, int Cout, int H, int W
-){
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    int total = N * Cout * H * W;
-    if (tid >= total) return;
-
-    int t = tid;
-    int w0 = t % W; t /= W;
-    int h0 = t % H; t /= H;
-    int co = t % Cout; t /= Cout;
-    int n  = t;
-
-    float acc = 0.f;
-    const half* w_row = w + co * Cin;
-
-    for (int ci = 0; ci < Cin; ci++) {
-        float xv = __half2float(x[((n*Cin + ci)*H + h0)*W + w0]);
-        float wv = __half2float(w_row[ci]);
-        acc += xv * wv;
-    }
-
-    y[((n*Cout + co)*H + h0)*W + w0] = __float2half(acc);
-}
-
-torch::Tensor pwconv1x1_fp16(torch::Tensor x, torch::Tensor w) {
-    TORCH_CHECK(x.is_cuda(), "x must be CUDA");
-    TORCH_CHECK(w.is_cuda(), "w must be CUDA");
-    TORCH_CHECK(x.scalar_type() == at::kHalf, "x must be FP16");
-    TORCH_CHECK(w.scalar_type() == at::kHalf, "w must be FP16");
-    TORCH_CHECK(x.dim() == 4, "x must be NCHW");
-    TORCH_CHECK(w.dim() == 4, "w must be [Cout, Cin, 1, 1]");
-
-    int N = x.size(0);
-    int Cin = x.size(1);
-    int H = x.size(2);
-    int W = x.size(3);
-    int Cout = w.size(0);
-
-    auto y = torch::empty({N, Cout, H, W}, x.options());
-
-    int total = N * Cout * H * W;
-    int threads = 256;
-    int blocks = (total + threads - 1) / threads;
-
-    pwconv1x1_fp16_kernel<<<blocks, threads>>>(
-        (half*)x.data_ptr<at::Half>(),
-        (half*)w.data_ptr<at::Half>(),
-        (half*)y.data_ptr<at::Half>(),
-        N, Cin, Cout, H, W
-    );
-
-    return y;
-}
-"""
-
-# ============================
-# C++ binding
-# ============================
-src_cpp = r"""
-#include <torch/extension.h>
-
-torch::Tensor pwconv1x1_fp16(torch::Tensor x, torch::Tensor w);
-
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-    m.def("pwconv1x1_fp16", &pwconv1x1_fp16, "Pointwise 1x1 FP16 (CUDA)");
-}
-"""
-
-# Write sources
-with open("pwext/pwconv.cu", "w") as f:
-    f.write(src_cuda)
-
-with open("pwext/bind.cpp", "w") as f:
-    f.write(src_cpp)
+# Kernel + binding sources: custom-kernels/kernels/pwconv1x1_fp16{.cu,_bind.cpp}
 
 # ============================
 # Build & load extension
 # ============================
 pwext = load(
     name="pwext",
-    sources=["pwext/bind.cpp", "pwext/pwconv.cu"],
+    sources=[os.path.join(KERNELS_DIR, "pwconv1x1_fp16_bind.cpp"),
+             os.path.join(KERNELS_DIR, "pwconv1x1_fp16.cu")],
     build_directory="/content/torch_extensions/pwext",
     extra_cflags=["-O3"],
     extra_cuda_cflags=["--use_fast_math", "-lineinfo"],

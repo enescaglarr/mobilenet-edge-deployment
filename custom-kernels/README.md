@@ -8,6 +8,7 @@ Continuation of the custom-kernel work from the graduation project. Targets **fr
 | File | What it is |
 |---|---|
 | `kernels/mnv2_kernels.cu` | 4 kernels: depthwise 3×3 **naive** / **tiled**, pointwise 1×1 **naive** / **tiled** (FP16 in/out, FP32 accumulate, fused bias + ReLU6) |
+| `kernels/dwconv3x3_fp16.cu`, `kernels/pwconv1x1_fp16.cu` (+ `_bind.cpp`) | The original v1 kernels from the graduation project, extracted verbatim from `src/colab/MobileNetCUDA.ipynb`; the notebook now compiles them from these files |
 | `custom_ops.py` | JIT build, `DepthwiseConv3x3` / `PointwiseConv1x1` modules, BatchNorm folding + layer replacement in torchvision MobileNetV2, `set_impl()` to switch backend at runtime |
 | `bench_kernels.py` | Per-layer-shape latency for naive / tiled / cuDNN, max error vs an FP32 reference, GFLOP/s |
 | `bench_model.py` | End-to-end latency/throughput for 6 backends + top-1/top-5 on an ImageNet subset + `torch.profiler` kernel breakdown |

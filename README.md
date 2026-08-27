@@ -43,8 +43,9 @@ src/
                   SLURM scripts for 1/2/4×V100 (akya) and P100 (barbun, never scheduled)
   truba/tensorrt/ TensorRT engine build on TRUBA (failed: CUDA init error 35 — see results/)
   cpu/            MobileNetV1/V2/V3 CPU thread-scaling, Tiny-ImageNet fine-tuning experiments
-custom-kernels/   v2: naive + tiled FP16 kernels, BN-folded MobileNetV2 integration,
-                  per-layer and end-to-end benchmarks, Colab notebook  (see its README)
+custom-kernels/   kernels/: the original v1 dw/pw FP16 kernels (as benchmarked in the report)
+                  plus v2 naive + tiled kernels; BN-folded MobileNetV2 integration, per-layer
+                  and end-to-end benchmarks, Colab notebook  (see its README)
 results/truba/    SLURM .out logs and benchmark CSVs (the source of every TRUBA number above)
 docs/reports/     Proposal, progress reports, final report
 docs/presentations/  Final presentation (pdf + pptx)
@@ -57,7 +58,8 @@ dataset/          ImageNet-val subset, 1000 classes × 50 images (git-ignored)
 
 **TensorRT + custom kernels (Colab, A100/T4):** open `src/colab/MobileNetCUDA.ipynb`,
 upload `models/MobileNet-v2.onnx` (or export one with `torchvision.models.mobilenet_v2` +
-`torch.onnx.export`), run top to bottom. Needs `tensorrt`, `cuda-python`, `onnxruntime`.
+`torch.onnx.export`) and the `custom-kernels/kernels/` folder (set `MNV2_KERNELS_DIR` to its
+path), run top to bottom. Needs `tensorrt`, `cuda-python`, `onnxruntime`, `ninja`.
 
 **Custom kernels v2 (Colab, T4):** see [`custom-kernels/README.md`](custom-kernels/README.md) —
 `bench_kernels.py` (per-layer naive / tiled / cuDNN) and `bench_model.py` (end-to-end + accuracy).

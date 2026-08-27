@@ -1,0 +1,6 @@
+# GitHub language statistics: count the CUDA/Python sources, not notebooks, docs or logs
+*.ipynb        linguist-detectable=false
+docs/**        linguist-documentation
+results/**     linguist-vendored
+# ensure CUDA sources are classified as CUDA
+*.cu           linguist-language=CUDA
