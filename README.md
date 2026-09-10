@@ -13,23 +13,40 @@ repo's scripts; raw logs and CSVs are in [`results/`](results/).
 
 | What | Where | Result |
 |---|---|---|
-| TensorRT FP16 vs FP32, batch 1 | Colab A100 | 0.475 ms → **0.297 ms** (2,104 → 3,372 FPS), 1.6× |
+| TensorRT FP16 vs FP32, batch 1 | A100 | 0.3714 ms → **0.2992 ms** (2,692 → 3,342 FPS), 1.24× |
 | TensorRT FP16 vs FP32, batch 64 | Colab A100 | 0.370 → 0.294 ms per batch (172,975 → 217,835 FPS) |
-| Runtimes at batch 1 (same notebook) | Colab | PyTorch eager **on CPU** 20.5 ms → ONNX Runtime **on CPU** 2.5 ms → TensorRT FP16 on A100 0.39 ms (~52×, CPU-vs-GPU) |
+| Cross-runtime at batch 1 (Appendix 4.2.2) | A100 / host CPU | ONNX Runtime **on CPU** 2.5 ms → TensorRT FP16 on A100 0.39 ms |
 | Custom depthwise 3×3 kernel vs `F.conv2d` FP16 (layer-level) | Colab A100 | **1.6× / 2.0× / 2.1×** at C=16·112², C=32·56², C=64·28² |
 | Custom pointwise 1×1 kernel vs `F.conv2d` FP16 (layer-level) | Colab A100 | **2.1× / 2.1× / 2.6×** on the same shapes; drops to **0.7×** at C=128 (naive kernel loses to cuDNN) |
 | PyTorch MobileNetV2, 50k ImageNet-val | TRUBA V100 | plateaus at ~840–900 img/s from batch 32; Top-1/Top-5 69.25 / 88.81 |
 | TF-Keras MobileNetV1, 50k ImageNet-val | TRUBA V100 | 218 img/s (batch 16) → 2,234 img/s (batch 4096); Top-1/Top-5 69.06 / 88.52; same curve with 1, 2 or 4 GPUs requested |
 | CPU thread scaling, MobileNetV1/V2/V3 | CPU (local) | V1 +87% from 1→3 threads, saturates at 4; V3 only +50–60% |
 
-Two things the numbers do **not** say, stated explicitly:
+The graduation project's final report (`docs/reports/FinalReportGroup219.pdf`,
+Appendix 9.2) is the single source of truth for every number above. Where this
+README, the notebooks, or the hardcoded plot arrays in `MobileNetCUDA.ipynb`
+disagree with it, **the report wins.**
 
-- The ~52× figure compares CPU-side PyTorch/ONNX Runtime against GPU TensorRT. The
-  like-for-like GPU comparison is the FP16-vs-FP32 row.
+Three things the numbers do **not** say, stated explicitly:
+
+- **The batch-1 FP16-vs-FP32 row previously read 0.475 ms → 0.297 ms, 1.6×. That was
+  wrong and has been removed.** The 0.475 ms came from a hardcoded array in a plotting
+  cell with no preserved output, and the report's own sweep shows per-batch latency
+  *dropping* to 0.366 ms at batch 2 — physically impossible for a genuine batch-1
+  reading, i.e. an unwarmed first measurement. The row now carries the report's
+  cross-GPU figures (Appendix 4.2.6). FPS values are reproduced as the appendix gives
+  them, not recomputed from the latencies.
+- **The ~52× claim and its 20.456 ms PyTorch CPU baseline have been removed.** It
+  compared CPU-side PyTorch against GPU TensorRT, which is not a like-for-like
+  comparison and was routinely misread as one. The like-for-like GPU number is the
+  FP16-vs-FP32 row.
 - The custom kernels were benchmarked as **isolated layers**. They were not integrated into a
   full-model forward pass, so no end-to-end or accuracy figure is claimed for them. That
   integration (plus tiled/register-blocked versions of both kernels) lives in
   [`custom-kernels/`](custom-kernels/) and is the current work in progress.
+- The pointwise `0.7× at C=128` note below is **not in the final report**, whose kernel
+  sweep stops at C=64. It comes from a separate notebook run and is kept here as an
+  engineering caveat, but it is not a report-backed figure.
 
 ## Repository layout
 
